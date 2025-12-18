@@ -176,6 +176,9 @@ app.post('/print', async (req, res) => {
         });
       }
 
+      // Track if response has been sent to prevent duplicate responses
+      let responseSent = false;
+
       try {
         // Print header
         printer
@@ -231,7 +234,7 @@ app.post('/print', async (req, res) => {
           printer.text(`${itemLine}${pricePadding}${price}`);
         });
 
-        // Print footer
+        // Print footer with close callback to send response after completion
         printer
           .text('--------------------------------')
           .style('bu') // Bold and underline
@@ -245,16 +248,18 @@ app.post('/print', async (req, res) => {
           .text('Silahkan Datang Kembali')
           .feed(3) // Feed 3 lines
           .cut() // Cut paper
-          .close(); // Close connection
-
-        console.log('✅ Receipt printed successfully');
-        
-        // Send success response
-        res.json({
-          success: true,
-          message: 'Receipt printed successfully',
-          transactionId
-        });
+          .close(function() {
+            // Send success response after print job completes
+            if (!responseSent) {
+              responseSent = true;
+              console.log('✅ Receipt printed successfully');
+              res.json({
+                success: true,
+                message: 'Receipt printed successfully',
+                transactionId
+              });
+            }
+          });
 
       } catch (printError) {
         console.error('❌ Print error:', printError);
@@ -266,10 +271,14 @@ app.post('/print', async (req, res) => {
           console.error('❌ Failed to close device:', closeError);
         }
 
-        res.status(500).json({
-          success: false,
-          error: 'Print error: ' + printError.message
-        });
+        // Send error response only if not already sent
+        if (!responseSent) {
+          responseSent = true;
+          res.status(500).json({
+            success: false,
+            error: 'Print error: ' + printError.message
+          });
+        }
       }
     });
 
@@ -329,14 +338,14 @@ app.post('/print/test', async (req, res) => {
         .text('your printer is working!')
         .feed(3)
         .cut()
-        .close();
-
-      console.log('✅ Test receipt printed successfully');
-      
-      res.json({
-        success: true,
-        message: 'Test receipt printed successfully'
-      });
+        .close(function() {
+          // Send success response after print job completes
+          console.log('✅ Test receipt printed successfully');
+          res.json({
+            success: true,
+            message: 'Test receipt printed successfully'
+          });
+        });
     });
 
   } catch (error) {
