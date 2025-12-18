@@ -56,23 +56,72 @@ yo-pos/
 
 ## 🏗️ Installation
 
-> **Note**: Starter code will be added in future iterations. This section is a placeholder for setup instructions.
-
 ### Prerequisites
 - Node.js (v16 or higher)
-- MySQL (v8.0 or higher)
+- MySQL (v8.0 or higher) - *(for backend, when implemented)*
 - npm or yarn package manager
+- USB thermal printer (ESC/POS compatible) - *(for print service)*
+- PM2 (optional, for production deployment)
 
 ### Setup Steps
+
+#### Print Service (Available Now)
 1. Clone the repository
-2. Install dependencies for all packages
-3. Configure database connections
-4. Run database migrations
-5. Start development servers
+```bash
+git clone https://github.com/yogithesymbian/yo-pos.git
+cd yo-pos/packages/print-service
+```
+
+2. Install dependencies
+```bash
+npm install
+```
+
+3. Run the service
+```bash
+# Development mode with auto-reload
+npm run dev
+
+# Production mode
+npm start
+
+# Using PM2 (recommended for production)
+pm2 start ecosystem.config.js
+```
+
+For detailed setup instructions, see [Print Service README](packages/print-service/README.md).
+
+#### Other Services
+> **Note**: Frontend and backend implementation will be added in future iterations.
 
 ## 🎯 Usage
 
-> **Note**: Usage instructions will be detailed once the implementation is complete.
+### Print Service
+The print service provides REST API endpoints for printing receipts:
+
+- **Health Check**: `GET http://localhost:3001/health`
+- **Print Receipt**: `POST http://localhost:3001/print`
+- **Test Print**: `POST http://localhost:3001/print/test`
+
+Example usage:
+```bash
+curl -X POST http://localhost:3001/print \
+  -H "Content-Type: application/json" \
+  -d '{
+    "items": [
+      {"name": "Product A", "qty": 2, "price": 10000},
+      {"name": "Product B", "qty": 1, "price": 15000}
+    ],
+    "total": 35000,
+    "storeName": "My Store",
+    "transactionId": "TRX-001"
+  }'
+```
+
+For complete API documentation, see [Print Service README](packages/print-service/README.md).
+
+### Other Features
+> **Note**: Frontend and backend usage instructions will be detailed once implementation is complete.
 
 ### Quick Start
 - Access the authentication interface
@@ -91,13 +140,19 @@ yo-pos/
 
 ## 📝 Development Status
 
-This project is currently in the planning phase. The codebase structure and implementation will be developed incrementally.
+This project is under active development. The codebase structure and implementation are being developed incrementally.
 
-### Current Phase: Planning & Documentation
+### Current Phase: Implementation
 - ✅ Project structure defined
 - ✅ Technical stack selected
-- ⏳ Agentic AI architecture design (planned)
-- ⏳ Implementation (pending)
+- ✅ **Print Service**: Fully implemented and tested
+  - REST API with Express.js
+  - ESC/POS thermal printer integration
+  - PM2 process management configuration
+  - Comprehensive documentation
+- ⏳ Frontend (Vue 3 + Element UI) - Planned
+- ⏳ Backend API (Node.js + Sequelize) - Planned
+- ⏳ Agentic AI architecture design - Planned
 
 ## 🤝 Contributing
 
